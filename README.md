@@ -4,4 +4,6 @@
 由于没有拿到全部的UI设计，暂时只做了几个天气背景。其他效果有待补充。
 
 
- 
+ ![screen1](tmp/screen1.jpg)
+ ![screen2](tmp/screen2.jpg)
+ ![screen3](tmp/screen3.jpg)
