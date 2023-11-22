@@ -8,8 +8,9 @@
  https://github.com/Dboy233/nice_weather/assets/37604230/417c792c-4a5f-4cb4-bf0f-7a42dd8caa5e
  
 > Screen capture
+
 |  ![screen1](tmp/screen1.jpg) |  ![screen2](tmp/screen2.jpg) |
-| - | - |
+| --- | --- |
 |  ![screen3](tmp/screen3.jpg) | a |
 
 
