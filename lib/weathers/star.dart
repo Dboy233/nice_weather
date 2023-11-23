@@ -12,7 +12,7 @@ class _CacheStarLocation {
   _CacheStarLocation(this.xPercent, this.yPercent);
 }
 
-class Star extends DrawableLayer with AnimationAbilityMixin {
+class 星标 extends DrawableLayer with AnimationAbilityMixin {
   Star() : super(label: "星星");
 
   ///随机创建对象
@@ -60,6 +60,8 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
     _alphaAnimation = Tween(begin: 0.0, end: 1.0).animate(_alphaController);
     _flashingController =
         AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    //循环为_flashingSize数量的星星设置闪烁数值动画。不要轻易的修改Interval的区间
+    //因为其直接影响星星闪烁的效果。
     for (var i = 0; i < _flashingSize; i++) {
       _flashingAnimations.add(Tween(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
@@ -85,6 +87,7 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
   FutureOr<void> detachLayer() async {
     super.detachLayer();
     try {
+      //等待星星隐藏，如果突然隐藏，画面会比较的突兀。
       await _alphaController.reverse().orCancel;
     } catch (e) {
       debugPrint("[$label]图层分离异常：${e.toString()}");
@@ -129,6 +132,8 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
   }
 
   ///随机星星坐标所占的比例
+  ///就是星星在空间坐标系中，X占画布的宽度百分比，Y占画布高度的半分比
+  ///随机他们的xy坐标位置，这样就能让星星均匀的分散开。
   _randomStarLocation() {
     const allStarCount = 80;
     const minBigStarCount = 10;
@@ -161,6 +166,7 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
         .toList();
     //在对应位位置绘制扩散阴影
     for (int i = 0; i < starOffsets.length; i++) {
+      ///如果动画是0，说明还没轮到它闪烁，就没必要执行后面的操作了。
       if (_flashingAnimations[i].value == 0.0) continue;
 
       Offset offset = starOffsets[i];
@@ -188,9 +194,10 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
       var process = _flashingAnimations[i].value;
       // 旋转角度（以弧度为单位）
       final rotation = (360 * process) * pi / 180;
-      //缩放计算，放大再缩小
+      //缩放计算，放大再缩小。
       var scale = 0.0;
       if (process <= 0.5) {
+        //这里 * 几，就是放大几倍。
         scale = process * 3;
       } else {
         scale = (1 - process) * 3;
