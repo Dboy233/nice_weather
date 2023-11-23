@@ -2,14 +2,16 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
+import 'package:nice_weather/utils.dart';
 
-final _random = math.Random();
 
 ///下雨效果
 class Rain extends DrawableLayer with AnimationAbilityMixin {
   Rain([double density = 30, this.maxVelocity = 10])
       : _density = density,
         super(label: "雨");
+
+  final _random = xRandom;
 
   //密度
   final double _density;
@@ -148,7 +150,7 @@ class _RainData {
   double _cacheY = 0;
 
   _RainData(this.color, this.length, this.velocity) {
-    fault = _random.nextDouble() * length;
+    fault = xRandom.nextDouble() * length;
     _path.moveTo(0, 0);
     _path.lineTo(fault, 0);
     _path.relativeMoveTo(5, 0);

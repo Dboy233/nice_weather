@@ -4,10 +4,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 
+import '../utils.dart';
+
 class Meteor extends DrawableLayer with AnimationAbilityMixin {
   Meteor() : super(label: "流星");
 
-  final random = Random();
+  final _random = xRandom;
 
   ///最多三个流星
   final _maxMeteorCount = 3;
@@ -159,21 +161,21 @@ class Meteor extends DrawableLayer with AnimationAbilityMixin {
     _delayTimer?.cancel();
 
     ///延迟最多3秒后开始动画
-    _delayTimer = Timer(Duration(seconds: random.nextInt(3)), () {
+    _delayTimer = Timer(Duration(seconds: _random.nextInt(3)), () {
       _startAnim();
     });
   }
 
   _createMeteor() {
     //随机创建小于[_maxMeteorCount]个流星
-    final count = random.nextInt(_maxMeteorCount);
+    final count = _random.nextInt(_maxMeteorCount);
     for (int i = 0; i < count; i++) {
       _meteors.add(_Meteor(
         -25,
-        random.nextDouble() * 3 + 2,
-        random.nextDouble() * 100 + 200,
-        random.nextDouble(),
-        random.nextDouble(),
+        _random.nextDouble() * 3 + 2,
+        _random.nextDouble() * 100 + 200,
+        _random.nextDouble(),
+        _random.nextDouble(),
       ));
     }
   }

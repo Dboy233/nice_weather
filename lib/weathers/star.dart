@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
+import 'package:nice_weather/utils.dart';
 
 class _CacheStarLocation {
   final double xPercent;
@@ -16,7 +17,7 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
   Star() : super(label: "星星");
 
   ///随机创建对象
-  final random = Random();
+  final _random = xRandom;
 
   ///星星画笔
   final _starPaint = Paint()..strokeCap = StrokeCap.round;
@@ -141,14 +142,14 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
     _cacheBigStarLocation.clear();
 
     _cacheSmallStarLocation.addAll(List.generate(allStarCount, (index) {
-      final x = random.nextDouble();
-      final y = random.nextDouble();
+      final x = _random.nextDouble();
+      final y = _random.nextDouble();
       return _CacheStarLocation(x, y);
     }));
 
-    var randomBigStarSize = minBigStarCount + random.nextInt(minBigStarCount);
+    var randomBigStarSize = minBigStarCount + _random.nextInt(minBigStarCount);
     for (int i = 0; i < randomBigStarSize; i++) {
-      var removeIndex = random.nextInt(_cacheSmallStarLocation.length);
+      var removeIndex = _random.nextInt(_cacheSmallStarLocation.length);
       var location = _cacheSmallStarLocation.removeAt(removeIndex);
       _cacheBigStarLocation.add(location);
     }
@@ -226,7 +227,7 @@ class Star extends DrawableLayer with AnimationAbilityMixin {
     mergedStar.addAll(_cacheBigStarLocation);
 
     for (int i = 0; i < _flashingSize; i++) {
-      var index = random.nextInt(mergedStar.length);
+      var index = _random.nextInt(mergedStar.length);
       _cacheFlashingStarLocation.add(mergedStar.removeAt(index));
     }
   }

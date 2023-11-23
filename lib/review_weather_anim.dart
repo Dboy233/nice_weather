@@ -30,44 +30,60 @@ class _ReviewWeatherAnimState extends State<ReviewWeatherAnim>
     with TickerProviderStateMixin {
   late List<WeatherLayerData> weatherData;
 
+  ///当前天气图层列表
   List<DrawableLayer> currentLayers = [];
 
+  ///当前展示的天气数据
   WeatherLayerData? currentWeather;
 
+  ///是否使用小区域显示，用来Debug调试动画用的。
   bool smallRegion = false;
 
   @override
   void initState() {
     super.initState();
 
+    ///创建需要展示的天气数据
     weatherData = [
       WeatherLayerData(
-        description: "白天",
+        description: "晴朗的天空",
         layers: () => [Sky(), Sun()],
       ),
       WeatherLayerData(
-        description: "夜晚",
+        description: "晴朗无月的夜晚",
         layers: () => [Sky(color: const Color(0xff272b2e)), Star(), Meteor()],
       ),
       WeatherLayerData(
-        description: "雨雪",
+        description: "雨加雪",
         layers: () => [
           Sky(color: const Color(0xff032c52)),
           CloudFullSky(
-              cloudHeight: 50, floatingTime: const Duration(seconds: 3)),
-          Rain(30,25),
-          Snow(45,5),
+            cloudHeight: 50,
+            floatingTime: const Duration(seconds: 3),
+          ),
+          //让雨雪夹在两个云层中间绘制，这样能更好的显示雨雪是从乌云中出现的。
+          Rain(30, 25),
+          Snow(45, 5),
           CloudFullSky(
-              cloudHeight: 20,
-              cloudColor: const Color(0xff28669a),
-              floatingTime: const Duration(seconds: 2)),
+            cloudColor: const Color(0xff28669a),
+            floatingTime: const Duration(seconds: 2),
+          ),
         ],
       ),
       WeatherLayerData(
-        description: "下雪",
+        description: "暴雪",
         layers: () => [
           Sky(color: const Color(0xff032c52)),
-          Snow(),
+          CloudFullSky(
+            cloudHeight: 50,
+            cloudColor: const Color(0xff28669a),
+            floatingTime: const Duration(seconds: 2),
+          ),
+          Snow(25,15),
+          CloudFullSky(
+            cloudColor: const Color(0xff28669a),
+            floatingTime: const Duration(seconds: 2),
+          ),
         ],
       ),
     ];

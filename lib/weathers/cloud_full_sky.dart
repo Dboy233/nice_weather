@@ -4,11 +4,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 
+import '../utils.dart';
+
 ///遮天的云层
 class CloudFullSky extends DrawableLayer with AnimationAbilityMixin {
   CloudFullSky({double? cloudHeight, Color? cloudColor, Duration? floatingTime})
       : _cloudColor = cloudColor ?? const Color(0xff0b4c7a),
-        _cloudHeight = cloudHeight ?? 100,
+        _cloudHeight = cloudHeight ?? 20,
         floatingTime = floatingTime ?? const Duration(seconds: 1),super(label: "乌云");
 
   ///云层高度
@@ -152,12 +154,12 @@ class CloudFullSky extends DrawableLayer with AnimationAbilityMixin {
   List<Offset> _createControlPoints() {
     List<Offset> points = [];
     for (int i = 0; i < _controlPointSize; i++) {
-      var x = 0.2+0.4*math.Random.secure().nextDouble();
-      double y = math.Random.secure().nextDouble();
+      var x = 0.2+0.4*xRandom.nextDouble();
+      double y = xRandom.nextDouble();
       if (i % 2 == 0) {
-        y = 0.7 + 0.3 * math.Random.secure().nextDouble();
+        y = 0.7 + 0.3 * xRandom.nextDouble();
       } else {
-        y = 0.3 * math.Random.secure().nextDouble();
+        y = 0.3 * xRandom.nextDouble();
       }
       points.add(Offset(x, y));
     }

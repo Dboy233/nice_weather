@@ -115,9 +115,15 @@ abstract class CompositeDrawableLayer {
 }
 
 ///绘制图层组件。将实现[DrawableLayer]的对象进行管理和绘制。
+///内部实现逻辑比较的简单，如果需要定制也是完全没有难度的。
 class DrawableLayerWidget extends StatefulWidget {
+  ///图层列表
   final List<DrawableLayer> drawableLayers;
+
+  ///动画控制器，如果你的图层中需要对动画操作，一定要提供。
   final TickerProvider? tickerProvider;
+
+  ///EventBus,一般来说不需要自己提供，但是如果你有更高效的EventBus实现方案，可以自己进行封装。
   final LayerEventBus? eventBus;
 
   const DrawableLayerWidget(
@@ -141,17 +147,22 @@ class _DrawableLayerWidgetState extends State<DrawableLayerWidget> {
       tickerProvider: widget.tickerProvider,
       eventBus: widget.eventBus ?? LayerEventManagerImp(),
     ));
+
+    ///初始化数据列表，之后的数据外部可以通过setState改变数据列表来提供。
     _composite.addNewLayers(widget.drawableLayers);
   }
 
   @override
   void didUpdateWidget(covariant DrawableLayerWidget oldWidget) {
+    ///因为数据由外部提供，当外部调用setState重新给图层列表的时候，就要动态的为其进行添加和移除。
+    ///所以updateLayers封装的内容就是数据对比，然后进行add和remove
     _composite.updateLayers(widget.drawableLayers);
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void reassemble() {
+    ///热重载的时候移除所有数据。
     _composite.removeAllLayer();
     super.reassemble();
   }
@@ -247,9 +258,14 @@ class CompositeDrawableLayerManager extends CompositeDrawableLayer {
   ///更新并不是替换，而是将新图层和旧图层进行合并，删除，添加，排序。
   ///将新列表和旧列表进行对比，找出需要删除的图层，新增的图层。
   ///如果新图层列表中包含了旧的图层列表，并且两者是同一个实例，则此图层将不会刷新。
+  ///其实这部分的代码逻辑，应该由外部调用者进行操作，而不是封装到内部。
   void updateLayers(List<DrawableLayer> newLayers) async {
     //浅拷贝旧对象，不能对同一个List做查询和移除操作，
     var oldLayers = [..._drawableLayers];
+
+    ///这里去重，指的是同一个对象，如果是不同对象示例的同一个图层没事。
+    ///当然这里的去重还是需要看你是否需要重写DrawableLayer的 == 操作符。
+    ///如果你重写了，那么即使是不同对象但是同一个类型的图层也会被去重。
     if (checkSameLayer(newLayers)) {
       _logger.log("存在相同实例的图层，新图层将会被去重: $newLayers");
       newLayers = newLayers.toSet().toList();
@@ -349,7 +365,7 @@ class CompositeDrawableLayerManager extends CompositeDrawableLayer {
     _drawableLayers.remove(drawableLayer);
     _onRemoveLayerCheckAbilityManager(drawableLayer);
 
-    //刷新绘制，当移除图层后，需要刷新绘制。因为最后一帧可能会残留再绘制图层上。
+    //刷新绘制，当移除图层后，需要刷新绘制。因为最后一帧可能会残留在Canvas上。
     _assistedRefreshDraw.value += 1;
   }
 
@@ -371,7 +387,7 @@ class CompositeDrawableLayerManager extends CompositeDrawableLayer {
       }
       _onRemoveLayerCheckAbilityManager(drawableLayer);
 
-      //刷新绘制，当移除图层后，需要刷新绘制。因为最后一帧可能会残留再绘制图层上。
+      //刷新绘制，当移除图层后，需要刷新绘制。因为最后一帧可能会残留在Canvas上。
       _assistedRefreshDraw.value += 1;
     });
   }
@@ -396,7 +412,7 @@ class CompositeDrawableLayerManager extends CompositeDrawableLayer {
       //先在当前位置绘制需要移除的图层，因为它被移除之前在这个位置。
       var futureRemoveList = _futureRemoveCacheMap[i];
       if (futureRemoveList != null) {
-        //这里拷贝列表是因为可能再循环的时候，会对此列表进行remove操作，防止并发删除错误
+        //这里拷贝列表是因为可能在循环的时候，会对此列表进行remove操作，防止并发删除错误
         final copyList = [...futureRemoveList];
         for (var dl in copyList) {
           dl.draw(canvas, size);
@@ -574,7 +590,10 @@ mixin EventBusAbilityMixin on DrawableLayer implements LayerEventBus {
 
   @override
   LayerEvent subscribe<T>(Function(T event) listener) {
-    assert(_layerEventBus != null);
+    assert(
+        _layerEventBus != null,
+        "为图层添加了EventBus能力，"
+        "但是与之对应的EventBusAbilityManager并未添加到CompositeDrawableLayerManager");
     var layerEvent = _layerEventBus!.subscribe(listener);
     _autoUnsubscribeList.add(layerEvent);
     return layerEvent;
@@ -582,12 +601,20 @@ mixin EventBusAbilityMixin on DrawableLayer implements LayerEventBus {
 
   @override
   void unsubscribe(LayerEvent event) {
+    assert(
+        _layerEventBus != null,
+        "为图层添加了EventBus能力，"
+        "但是与之对应的EventBusAbilityManager并未添加到CompositeDrawableLayerManager");
     _layerEventBus?.unsubscribe(event);
     _autoUnsubscribeList.remove(event);
   }
 
   @override
   void publish<T>(T event) {
+    assert(
+        _layerEventBus != null,
+        "为图层添加了EventBus能力，"
+        "但是与之对应的EventBusAbilityManager并未添加到CompositeDrawableLayerManager");
     _layerEventBus?.publish(event);
   }
 

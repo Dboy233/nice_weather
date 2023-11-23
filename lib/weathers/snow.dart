@@ -2,8 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
+import 'package:nice_weather/utils.dart';
 
-final _random = math.Random();
+final _random = xRandom;
 
 ///下雪效果，啥也不说了，和Rain一样的实现逻辑，只不过是雨换成雪。
 class Snow extends DrawableLayer with AnimationAbilityMixin {
