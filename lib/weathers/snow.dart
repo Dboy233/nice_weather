@@ -5,6 +5,7 @@ import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 
 final _random = math.Random();
 
+///下雪效果，啥也不说了，和Rain一样的实现逻辑，只不过是雨换成雪。
 class Snow extends DrawableLayer with AnimationAbilityMixin {
   Snow([double density = 75,this.maxVelocity = 10])
       : _density = density,
@@ -12,9 +13,9 @@ class Snow extends DrawableLayer with AnimationAbilityMixin {
 
   //密度，密度越小，数量越多
   final double _density;
-
+  //最大下落速度，数值越大，下落速度越快。
   final double maxVelocity;
-
+  
   late AnimationController _controller;
 
   ///画笔
@@ -32,7 +33,6 @@ class Snow extends DrawableLayer with AnimationAbilityMixin {
   }
 
   var forIndex = 0;
-
   final List<_SnowData> _tops = [];
   final List<_SnowData> _rights = [];
 
