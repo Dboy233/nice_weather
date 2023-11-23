@@ -12,7 +12,7 @@ class _CacheStarLocation {
   _CacheStarLocation(this.xPercent, this.yPercent);
 }
 
-class 星标 extends DrawableLayer with AnimationAbilityMixin {
+class Star extends DrawableLayer with AnimationAbilityMixin {
   Star() : super(label: "星星");
 
   ///随机创建对象

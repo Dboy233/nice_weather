@@ -6,7 +6,7 @@ import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 
 import 'sky.dart';
 
-class 周日 extends DrawableLayer
+class Sun extends DrawableLayer
     with AnimationAbilityMixin, EventBusAbilityMixin {
   Sun({DateTime? sunRiseTime, DateTime? sunFallTime})
       : sunRiseTime = sunRiseTime ?? DateTime.now().copyWith(hour: 6),

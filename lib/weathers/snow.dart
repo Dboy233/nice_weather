@@ -19,7 +19,7 @@ class Snow extends DrawableLayer with AnimationAbilityMixin {
   late AnimationController _controller;
 
   ///画笔
-  Paint paint = Paint();
+  Paint _paint = Paint();
 
   @override
   void initAnim() {
@@ -51,14 +51,14 @@ class Snow extends DrawableLayer with AnimationAbilityMixin {
       }
     }
     for (int i = 0; i < topSize - 1; i++) {
-      var topRain = _tops[i];
+      var top = _tops[i];
       var dx = perSpace + topWidth - forIndex * _density;
       if (dx < 0) {
         // dx = perSpace + topWidth;
         break;
       }
       canvas.drawPath(
-          topRain.move(dx, 0, 120, size), paint..color = topRain.color);
+          top.move(dx, 0, 120, size), _paint..color = top.color);
       forIndex++;
     }
 
@@ -74,13 +74,13 @@ class Snow extends DrawableLayer with AnimationAbilityMixin {
       }
     }
     for (int i = 0; i < rightSize - 1; i++) {
-      var topRain = _rights[i];
+      var right = _rights[i];
       var dy = _density + forIndex * _density;
       if (dy > rightHeight) {
         break;
       }
-      canvas.drawPath(topRain.move(size.width, dy, 120, size),
-          paint..color = topRain.color);
+      canvas.drawPath(right.move(size.width, dy, 120, size),
+          _paint..color = right.color);
       forIndex++;
     }
   }
