@@ -6,7 +6,7 @@ import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 
 import 'sky.dart';
 
-class Sun extends DrawableLayer
+class 周日 extends DrawableLayer
     with AnimationAbilityMixin, EventBusAbilityMixin {
   Sun({DateTime? sunRiseTime, DateTime? sunFallTime})
       : sunRiseTime = sunRiseTime ?? DateTime.now().copyWith(hour: 6),
@@ -46,6 +46,8 @@ class Sun extends DrawableLayer
   void initAnim() {
     ///计算太阳位置
     sunLocation = 0.2;
+    //根据当前事件动态获取太阳位置百分比。因为需要得到太阳升起和降落的时间。
+    //所以，这个就暂时不实现，或许可以让外部提供位置，而不是时间。
     // _calculateDaylightPercentage(sunRiseTime, sunFallTime, DateTime.now()) /
     //     100;
 
@@ -108,11 +110,9 @@ class Sun extends DrawableLayer
     var sunCenterX = sunOffset.dx;
     var sunCenterY = sunOffset.dy;
     final sunCenter = Offset(sunCenterX, sunCenterY);
-    //太阳光晕
-
+    //太阳光晕半径
     var light1Radius = sunRadius * 1.6 + (_breathAnim1.value * 10.0);
     var light2Radius = sunRadius * 1.3 + (_breathAnim2.value * 10.0);
-    //光晕1
     ///光晕渐变
     RadialGradient lightGradient = RadialGradient(
       colors: [
@@ -123,6 +123,7 @@ class Sun extends DrawableLayer
       center: Alignment.center,
       focal: Alignment.center,
     );
+    //光晕1
     _lightPaint.shader = lightGradient
         .createShader(Rect.fromCircle(center: sunCenter, radius: light1Radius));
     canvas.drawCircle(sunCenter, light1Radius, _lightPaint);
@@ -194,6 +195,8 @@ class Sun extends DrawableLayer
   FutureOr<void> detachLayer() async {
     super.detachLayer();
     try {
+      //等待太阳移动和太阳消失两个动画执行结束。
+      //让太阳看上去像是真的日落了一样。
       await Future.wait([
         _sunLocusController.forward().orCancel,
         _alphaController.reverse().orCancel,
