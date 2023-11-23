@@ -108,7 +108,7 @@ abstract class CompositeDrawableLayer {
   void addLayer(DrawableLayer drawable, {int index = -1});
 
   ///移除图层
-  FutureOr removeLayer(DrawableLayer drawable);
+  void removeLayer(DrawableLayer drawable);
 
   ///绘制。
   void draw(Canvas canvas, Size size);
