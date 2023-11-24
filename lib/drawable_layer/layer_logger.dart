@@ -12,7 +12,7 @@ class LayerLogger {
   void log(Object log) {
     if (globeEnable) {
       if (_enable) {
-       print(log);
+       print("$_tag::$log");
       }
     }
   }

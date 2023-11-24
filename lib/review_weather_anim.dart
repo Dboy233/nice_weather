@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
+import 'package:nice_weather/weathers/fogger.dart';
 import 'package:nice_weather/weathers/meteor.dart';
+import 'package:nice_weather/weathers/moon_simple.dart';
 import 'package:nice_weather/weathers/rain.dart';
 import 'package:nice_weather/weathers/snow.dart';
 import 'package:nice_weather/weathers/star.dart';
+import 'package:nice_weather/weathers/sun_simple.dart';
 
 import 'weathers/cloud_full_sky.dart';
 import 'weathers/sky.dart';
@@ -79,11 +82,27 @@ class _ReviewWeatherAnimState extends State<ReviewWeatherAnim>
             cloudColor: const Color(0xff28669a),
             floatingTime: const Duration(seconds: 2),
           ),
-          Snow(25,15),
+          Snow(25, 15),
           CloudFullSky(
             cloudColor: const Color(0xff28669a),
             floatingTime: const Duration(seconds: 2),
           ),
+        ],
+      ),
+      WeatherLayerData(
+        description: "有雾-白天",
+        layers: () => [
+          Sky(color: const Color(0xffb9a26d)),
+          SunSimple(),
+          Foggy(),
+        ],
+      ),
+      WeatherLayerData(
+        description: "有雾-夜晚",
+        layers: () => [
+          Sky(color: const Color(0xff302520)),
+          MoonSimple(),
+          Foggy(color: const Color(0xff302520)),
         ],
       ),
     ];
@@ -109,7 +128,9 @@ class _ReviewWeatherAnimState extends State<ReviewWeatherAnim>
       ),
       body: smallRegion
           ? Center(
-              child: SizedBox(
+              child: Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.black)),
                 width: 200,
                 height: 200,
                 child: DrawableLayerWidget(

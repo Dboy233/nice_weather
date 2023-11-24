@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 
-import 'package:flutter/animation.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../drawable_layer/drawable_layer.dart';
 import 'sun.dart';
@@ -11,6 +9,7 @@ import 'sun.dart';
 enum SkyState {
   ///开始显示
   start,
+
   ///完成显示
   end,
 }
@@ -31,14 +30,15 @@ class Sky extends DrawableLayer
 
   ///天空透明度
   double _alpha = 0.0;
-  final  paint = Paint();
+  final paint = Paint();
+
   @override
   List<AnimationController> get listenables => [_controller];
 
   @override
   void initAnim() {
     _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+        AnimationController(vsync: this, duration: Durations.extralong4);
     _alphaAnim = CurveTween(curve: Curves.linear).animate(_controller);
     _alphaAnim.addListener(() {
       _alpha = _alphaAnim.value;
