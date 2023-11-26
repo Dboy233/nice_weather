@@ -20,7 +20,7 @@ class Snow extends DrawableLayer with AnimationAbilityMixin {
   late AnimationController _controller;
 
   ///画笔
-  Paint _paint = Paint();
+  final Paint _paint = Paint();
 
   @override
   void initAnim() {
@@ -105,8 +105,6 @@ class _SnowData {
   ///旋转速度
   double maxAngleVelocity;
   late double _angleVelocity;
-
-  double _alpha = 1.0;
 
   ///雪花路径
   final Path _path = Path();
@@ -263,7 +261,6 @@ class _SnowData {
     velocity = (_random.nextDouble() * (maxVelocity - 0.5)) + 0.5;
     _angleVelocity = (_random.nextDouble() * (maxAngleVelocity - 0.5)) +
         0.5 * (_random.nextBool() ? 1 : -1);
-    _alpha = (_random.nextDouble() * 90) + 0.1;
     color = color.withAlpha(100 + _random.nextInt(150));
   }
 }

@@ -30,6 +30,7 @@ class Sky extends DrawableLayer
 
   ///天空透明度
   double _alpha = 0.0;
+
   final paint = Paint();
 
   @override

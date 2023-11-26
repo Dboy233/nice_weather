@@ -4,15 +4,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 
+import '../utils.dart';
+
 ///有雾
 ///fixme 当前的绘制内容中存在性能问题，导致帧数上不去。
-class Foggy extends DrawableLayer with AnimationAbilityMixin {
+class Foggy extends DrawableLayer
+    with AnimationAbilityMixin, LayerLifeCycleExtendMixin {
   Foggy(
       {double offsetY = 120,
       int peakDensity = 8,
       double peakHeight = 50,
       Color color = const Color(0xffb9a26d)})
       : _offsetY = offsetY,
+        assert(peakDensity >= 4),
         _peakDensity = peakDensity,
         _peakHeight = peakHeight,
         _color = color,
@@ -54,9 +58,6 @@ class Foggy extends DrawableLayer with AnimationAbilityMixin {
   ///判断是否更改了渐变属性。
   bool _isChangeGradient = false;
 
-  ///缓存画布大小
-  Size _cacheSize = Size.zero;
-
   @override
   List<Listenable> get listenables =>
       [_backgroundController, _foregroundController, _alphaController];
@@ -66,9 +67,9 @@ class Foggy extends DrawableLayer with AnimationAbilityMixin {
     _alphaController =
         AnimationController(vsync: this, duration: Durations.extralong4);
     _backgroundController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 15));
+        AnimationController(vsync: this, duration: const Duration(seconds: 20));
     _foregroundController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 10));
+        AnimationController(vsync: this, duration: const Duration(seconds: 12));
 
     _alphaController.addListener(() {
       _changeLinearGradient(_alphaController.value);
@@ -102,71 +103,46 @@ class Foggy extends DrawableLayer with AnimationAbilityMixin {
   }
 
   @override
-  void draw(Canvas canvas, Size size) {
-    //对画布大小进行缓存，并判断画布是否改变，如果改变就重置Path等数据
-    bool reset = false;
-    if (size != _cacheSize) {
-      _cacheSize = size;
-      reset = true;
-    }
+  void onSizeChange(Canvas canvas, Size preSize, Size size) {
+    //宽度/密度 = 均分宽度
+    var dx = size.width / _peakDensity;
+    //重置背景路径
+    bPath.reset();
+    var backgroundList = _backgroundPoints.map((e) {
+      //根据随机的点位置，转换为坐标位置，Y轴进行平移达到合适的地方,这里加10，是为了让前后背景有一定的交错距离
+      return Offset(e.dx * dx, _peakHeight * e.dy + _offsetY);
+    }).toList();
+    convertPoints2Path(bPath, backgroundList);
+    //将路径闭合
+    bPath.lineTo(size.width, size.height);
+    bPath.lineTo(-size.width, size.height);
+    bPath.close();
 
+    //重置前景路径
+    fPath.reset();
+    var foregroundList = _foregroundPoints.map((e) {
+      return Offset(e.dx * dx, _peakHeight * e.dy + _offsetY);
+    }).toList();
+    convertPoints2Path(fPath, foregroundList);
+    //将路径闭合
+    fPath.lineTo(size.width, size.height);
+    fPath.lineTo(-size.width, size.height);
+    fPath.close();
+  }
+
+  @override
+  void draw(Canvas canvas, Size size) {
+    super.draw(canvas, size);
     //设置画笔着色器
     _setPaintShader(size);
 
-    if (reset) {
-      bPath.reset();
-
-      //宽度/密度 = 均分宽度
-      var dx = size.width / _peakDensity;
-      var backgroundList = _backgroundPoints.map((e) {
-        //根据随机的点位置，转换为坐标位置，Y轴进行平移达到合适的地方,这里加10，是为了让前后背景有一定的交错距离
-        return Offset(e.dx * dx, _peakHeight * e.dy + _offsetY + 10);
-      }).toList();
-      _convertPoints2Path(bPath, backgroundList);
-      //将路径闭合
-      bPath.lineTo(size.width, size.height);
-      bPath.lineTo(-size.width, size.height);
-      bPath.close();
-    }
-
-    ///fixme 反复的矩阵操作也会增加绘制的耗时
     var matrix42 = Matrix4.identity();
     matrix42.translate(size.width * _backgroundController.value);
     canvas.drawPath(bPath.transform(matrix42.storage), _paintBackground);
 
-    if (reset) {
-      fPath.reset();
-
-      //宽度/密度 = 均分宽度
-      var dx = size.width / _peakDensity;
-      var foregroundList = _foregroundPoints.map((e) {
-        return Offset(e.dx * dx, _peakHeight * e.dy + _offsetY);
-      }).toList();
-      _convertPoints2Path(fPath, foregroundList);
-      //将路径闭合
-      fPath.lineTo(size.width, size.height);
-      fPath.lineTo(-size.width, size.height);
-      fPath.close();
-    }
-
-    ///fixme 反复的矩阵操作也会增加绘制的耗时
     var matrix4 = Matrix4.identity();
     matrix4.translate(size.width * _foregroundController.value);
     canvas.drawPath(fPath.transform(matrix4.storage), _paintForeground);
-  }
-
-  ///使用 catmull rom spline 将控制点转换成平滑的路径。
-  _convertPoints2Path(Path path, List<Offset> controlPoints) {
-    var catmullRomSpline = CatmullRomSpline(controlPoints);
-    var generateSamples = catmullRomSpline.generateSamples();
-    List<Offset> offsets = [];
-    for (var value in generateSamples) {
-      offsets.add(value.value);
-    }
-    path.moveTo(offsets[0].dx, offsets[0].dy);
-    for (int i = 0; i < offsets.length; i++) {
-      path.lineTo(offsets[i].dx, offsets[i].dy);
-    }
   }
 
   ///随机创建控制点

@@ -94,7 +94,7 @@ class _ReviewWeatherAnimState extends State<ReviewWeatherAnim>
         layers: () => [
           Sky(color: const Color(0xffb9a26d)),
           SunSimple(),
-          Foggy(),
+          Foggy(peakHeight: 30,peakDensity: 6),
         ],
       ),
       WeatherLayerData(
@@ -102,7 +102,7 @@ class _ReviewWeatherAnimState extends State<ReviewWeatherAnim>
         layers: () => [
           Sky(color: const Color(0xff302520)),
           MoonSimple(),
-          Foggy(color: const Color(0xff302520)),
+          Foggy(color: const Color(0xff302520),peakHeight: 30,peakDensity: 6),
         ],
       ),
     ];

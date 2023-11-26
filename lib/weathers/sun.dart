@@ -8,10 +8,13 @@ import 'sky.dart';
 
 class Sun extends DrawableLayer
     with AnimationAbilityMixin, EventBusAbilityMixin {
-  Sun({DateTime? sunRiseTime, DateTime? sunFallTime})
+  Sun({double radius = 100, DateTime? sunRiseTime, DateTime? sunFallTime})
       : sunRiseTime = sunRiseTime ?? DateTime.now().copyWith(hour: 6),
         sunFallTime = sunFallTime ?? DateTime.now().copyWith(hour: 18),
+        _radius = radius,
         super(label: "太阳");
+
+  double _radius;
 
   ///升起动画控制器
   late AnimationController _sunLocusController;
@@ -95,7 +98,6 @@ class Sun extends DrawableLayer
   @override
   void draw(Canvas canvas, Size size) {
     var path = _createSunLocusPath(size);
-    // _drawSunLocusPath(path, canvas);
     var sunOffset = _createSunLocusOffset(path, canvas, size);
     if (sunOffset == null) {
       return;
@@ -105,7 +107,7 @@ class Sun extends DrawableLayer
 
   _drawSun(Canvas canvas, Size size, Offset sunOffset) {
     //太阳半径
-    double sunRadius = size.width * 0.15;
+    double sunRadius = _radius;
     //太阳中心坐标位置
     var sunCenterX = sunOffset.dx;
     var sunCenterY = sunOffset.dy;
@@ -113,6 +115,7 @@ class Sun extends DrawableLayer
     //太阳光晕半径
     var light1Radius = sunRadius * 1.6 + (_breathAnim1.value * 10.0);
     var light2Radius = sunRadius * 1.3 + (_breathAnim2.value * 10.0);
+
     ///光晕渐变
     RadialGradient lightGradient = RadialGradient(
       colors: [
@@ -219,6 +222,4 @@ class Sun extends DrawableLayer
       _doAnim();
     });
   }
-
-
 }

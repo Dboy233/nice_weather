@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 import 'package:nice_weather/utils.dart';
 
-
 ///下雨效果
 class Rain extends DrawableLayer with AnimationAbilityMixin {
   Rain([double density = 30, this.maxVelocity = 10])
@@ -52,6 +51,7 @@ class Rain extends DrawableLayer with AnimationAbilityMixin {
     super.attachLayer();
     _controller.repeat();
   }
+
   @override
   void draw(Canvas canvas, Size size) {
     ///处理顶部雨滴
@@ -90,7 +90,7 @@ class Rain extends DrawableLayer with AnimationAbilityMixin {
       forIndex++;
     }
 
-    ///处理侧面雨滴
+    ///处理侧面雨滴，因为后面的算法是forIndex * _density，forIndex所以需要等于1才可以
     forIndex = 1;
     listSize = _rights.length;
 
@@ -115,10 +115,9 @@ class Rain extends DrawableLayer with AnimationAbilityMixin {
   }
 
   @override
-  List<Listenable> get listenables => [
-        _controller,
-      ];
+  List<Listenable> get listenables => [_controller];
 
+  ///随机创建雨滴属性
   _RainData _createRain() {
     var d = maxVelocity / 2;
     var velocity = d + _random.nextInt(d.toInt());
@@ -144,13 +143,20 @@ class _RainData {
   ///雨滴绘制路径。
   final Path _path = Path();
 
+  //雨滴原始开始坐标
   double _startX = 0;
   double _startY = 0;
+  //移动之后变化的坐标
   double _cacheX = 0;
   double _cacheY = 0;
 
   _RainData(this.color, this.length, this.velocity) {
     fault = xRandom.nextDouble() * length;
+    //雨滴路径是在原点坐标，沿着x轴坐标组成：
+    //  |y
+    //  |
+    //  | ———— —
+    //——|————————————————>x
     _path.moveTo(0, 0);
     _path.lineTo(fault, 0);
     _path.relativeMoveTo(5, 0);
@@ -177,6 +183,7 @@ class _RainData {
     if (angle == 90) {
       _cacheY = _cacheY + velocity;
       if (!region.contains(Offset(_cacheX, _cacheY))) {
+        //雨滴超出绘制范围重置起始坐标
         _reset();
       }
       var matrix = Matrix4.identity();
@@ -185,6 +192,7 @@ class _RainData {
       return _path.transform(matrix.storage);
     } else if (angle > 90) {
       if (!region.contains(Offset(_cacheX, _cacheY))) {
+        //雨滴超出绘制范围重置起始坐标
         _reset();
       }
       var radians = angle * math.pi / 180;
@@ -234,8 +242,10 @@ class _RainData {
   }
 
   ///已知起始坐标和角度和结束坐标的X/Y,求结束坐标的X/Y
-  ///就是知道结束x坐标，求在Y坐标上的Y坐标然后,然后组合x，y。
+  ///就是知道结束x坐标，求结束的Y坐标,然后组合x，y。
   ///相反知道结束Y坐标就是求X坐标。
+  ///
+  /// 数学描述就是，求向量穿过某条直线的交点
   Offset _computeEndPoint(double startX, double startY, double radians,
       {double? endX, double? endY}) {
     if (endX != null) {

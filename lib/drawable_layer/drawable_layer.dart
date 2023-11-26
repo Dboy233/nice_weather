@@ -37,13 +37,11 @@ abstract class DrawableLayer {
   List<Listenable> get listenables;
 
   ///初始化，用于初始化AnimationController和Animation资源
-  @mustCallSuper
   void init() {
     _logger.log("Layer - ${toString()} init");
   }
 
   ///当图层添加到画布的时候触发。
-  @mustCallSuper
   void attachLayer() {
     _logger.log("${toString()} attachLayer");
   }
@@ -55,13 +53,11 @@ abstract class DrawableLayer {
   ///如果要执行消失动画，可以使用await AnimationController.forward().orCancel，
   ///并用try catch包裹。
   ///当detachLayer执行完成后自动触发dispose方法。
-  @mustCallSuper
   FutureOr<void> detachLayer() {
     _logger.log("${toString()} detachLayer");
   }
 
   ///用于销毁AnimationController和Animation资源
-  @mustCallSuper
   void dispose() {
     _logger.log("${toString()} dispose");
   }
@@ -642,4 +638,33 @@ mixin LayerExistAbilityMixin on DrawableLayer {
   ///当图层被移除的时候，会调用此方法。
   ///[drawableLayer] - 被移除的图层。
   void onDrawableLayerRemove(DrawableLayer drawableLayer) {}
+}
+
+///图层生命周期扩展，混入类
+///子类的draw方法需要在第一行调用super.draw()
+/// void draw(Canvas canvas, Size size) {
+///     super.draw(canvas, size);
+///     。。。
+///}
+mixin LayerLifeCycleExtendMixin on DrawableLayer {
+  ///缓存画布大小
+  Size _cacheSize = Size.zero;
+
+  @override
+  @mustCallSuper
+  void draw(Canvas canvas, Size size) {
+    if (_cacheSize != size) {
+      onSizeChange(canvas, _cacheSize, size);
+      _cacheSize = size;
+    }
+  }
+
+  ///画布大小改变。
+  ///每当画布大小发生改变时通知此方法。并且此方法只会在[draw]之前通知，
+  ///并且在画布大小确定之后，此方法只会通知一次。
+  ///可以在此方法中做一些会之前的初始化操作，因为其他生命周期中无法拿到画布大小，对于一些坐标定位，
+  ///可重复利用资源的创建和初始化都有很大的帮助。
+  ///[preSize] 前一个尺寸
+  ///[size] 改变后的尺寸
+  void onSizeChange(Canvas canvas, Size preSize, Size size) {}
 }

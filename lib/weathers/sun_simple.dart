@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:nice_weather/drawable_layer/drawable_layer.dart';
 
 ///简单的太阳
-class SunSimple extends DrawableLayer with AnimationAbilityMixin {
+class SunSimple extends DrawableLayer
+    with AnimationAbilityMixin, LayerLifeCycleExtendMixin {
   SunSimple({double radius = 70})
       : _radius = radius,
         super(label: "简单太阳");
@@ -19,13 +20,10 @@ class SunSimple extends DrawableLayer with AnimationAbilityMixin {
   final Paint _paint = Paint()..isAntiAlias = true;
   final Paint _shadowPaint = Paint()
     ..isAntiAlias = true
-    ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8.0);
+    ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20.0);
 
   ///缓存绘制路径，防止每次刷新都创建
-  Path? _path;
-
-  ///缓存画布大小，防止每次都做一样的事情。
-  Size _cacheSize = Size.zero;
+  late Path _path;
 
   @override
   void initAnim() {
@@ -50,25 +48,26 @@ class SunSimple extends DrawableLayer with AnimationAbilityMixin {
   }
 
   @override
-  void draw(Canvas canvas, Size size) {
-    if (_path == null || _cacheSize != size) {
-      _cacheSize = size;
-      _path = Path();
-      double centerX = size.width - (_radius * 2);
-      double centerY = _radius * 1.5;
-      _path?.addOval(Rect.fromLTRB(centerX - _radius, centerY - _radius,
-          centerX + _radius, centerY + _radius));
-      _path?.close();
-    }
+  void onSizeChange(Canvas canvas, Size preSize, Size size) {
+    _path = Path();
+    double centerX = size.width - (_radius * 2);
+    double centerY = _radius * 1.5;
+    _path.addOval(Rect.fromLTRB(centerX - _radius, centerY - _radius,
+        centerX + _radius, centerY + _radius));
+    _path.close();
+  }
 
+  @override
+  void draw(Canvas canvas, Size size) {
+    super.draw(canvas, size);
     //绘制阴影
     canvas.drawPath(
-        _path!,
+        _path,
         _shadowPaint
           ..color = Colors.white.withOpacity(_controller.value * 0.7));
     //绘制太阳
     canvas.drawPath(
-        _path!, _paint..color = Colors.white.withOpacity(_controller.value));
+        _path, _paint..color = Colors.white.withOpacity(_controller.value));
   }
 
   @override
